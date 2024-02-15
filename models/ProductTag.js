@@ -9,7 +9,6 @@ class ProductTag extends Model { }
 // set up fields and rules for Product model
 ProductTag.init({
 
-
   product_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
