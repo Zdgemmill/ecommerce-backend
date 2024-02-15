@@ -53,9 +53,7 @@ router.post('/', async (req, res) => {
     const { categoryName } = req.body;
 
     // Create a new category
-    const newCategory = await Category.create({
-      name: categoryName,
-    });
+    const newCategory = await Category.create(req.body);
 
     // Respond with the newly created category
     res.status(201).json(newCategory);
@@ -68,7 +66,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const categoryId = req.params.id;
-    const { categoryName } = req.body;
+    const { category_name } = req.body;
 
     // Check if the category exists
     const existingCategory = await Category.findByPk(categoryId);
@@ -78,14 +76,22 @@ router.put('/:id', async (req, res) => {
     }
 
     // Update the category
-    await Category.update({ name: categoryName }, {
-      where: { id: categoryId }
+
+    //   Product.update(req.body, {
+    //   where: {
+    //     id: req.params.id,
+    //   },
+    // })
+    await Category.update({ category_name }, {
+      where: { category_id: categoryId }
     });
 
     // Fetch the updated category
     const updatedCategory = await Category.findByPk(categoryId);
 
     // Respond with the updated category
+
+    console.log(updatedCategory);
     res.status(200).json(updatedCategory);
   } catch (err) {
     console.error(err);
@@ -99,7 +105,7 @@ router.delete('/:id', async (req, res) => {
 
     // Delete the category
     const deletedCategory = await Category.destroy({
-      where: { id: categoryId }
+      where: { category_id: categoryId }
     });
 
     if (deletedCategory === 0) {
