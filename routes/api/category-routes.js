@@ -11,7 +11,8 @@ router.get('/', async (req, res) => {
     const categoriesWithProducts = await Category.findAll({
       include: [{
         model: Product,
-        as: 'category_id'
+        as: 'products',
+        required: true,
       }]
     });
     res.status(200).json(categoriesWithProducts);
@@ -21,6 +22,7 @@ router.get('/', async (req, res) => {
     }
   } catch (err) {
     res.status(500).json(err);
+    console.log(err);
   }
 });
 
