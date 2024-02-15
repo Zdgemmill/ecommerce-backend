@@ -4,19 +4,41 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 // The `/api/products` endpoint
 
 // get all products
-router.get('/', (req, res) => {
-  // find all products
-  Product.findAll().then((productData) => {
+router.get('/', async (req, res) => {
+  try {
+    // Find all products and include associated Category and Tag data
+    const productData = await Product.findAll({
+      include: [{ model: Category, as: 'category' }, { model: Tag, as: 'tags' }]
+    });
+
     res.json(productData);
-    return (productData)
-    // be sure to include its associated Category and Tag data
-  });
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // get one product
-router.get('/:id', (req, res) => {
-  // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+router.get('/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const productData = await Product.findByPk(productId, {
+      include: [{ model: Category, as: 'category' }, { model: Tag, as: 'tags' }]
+    });
+
+    if (!productData) {
+      res.status(404).json({ message: 'Product not found!' });
+      return;
+    }
+
+    res.json(productData);
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // create new product
@@ -96,8 +118,25 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
-  // delete one product by its `id` value
+router.delete('/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+    // Delete the product
+    const deletedProduct = await Product.destroy({
+      where: { id: productId }
+    });
+
+    if (deletedProduct === 0) {
+      // If no product was deleted, it means product with given id doesn't exist
+      res.status(404).json({ message: 'Product not found!' });
+      return;
+    }
+
+    res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 module.exports = router;
